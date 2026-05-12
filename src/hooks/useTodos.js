@@ -16,15 +16,15 @@ function useTodos() {
       completed: false,
       priority: 'medium',
     }
-    setTodos([...todos, newTodo])
+    setTodos((prev) => [...prev, newTodo])
   }
 
   const onToggle = (id) => {
-    setTodos(todos.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t)))
+    setTodos((prev) => prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t)))
   }
 
   const onDelete = (id) => {
-    setTodos(todos.filter((t) => t.id !== id))
+    setTodos((prev) => prev.filter((t) => t.id !== id))
   }
 
   return { todos, onAdd, onToggle, onDelete }
