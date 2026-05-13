@@ -1,21 +1,34 @@
+import { useState } from 'react'
 import useLocalStorage from './useLocalStorage'
 
 const defaultTodos = [
-  { id: 1, text: '리액트 공부하기', completed: false, priority: 'high', subtasks: [] },
-  { id: 2, text: '장보기', completed: true, priority: 'medium', subtasks: [] },
-  { id: 3, text: '운동하기', completed: false, priority: 'low', subtasks: [] },
+  { id: 1, text: '리액트 공부하기', completed: false, priority: 'high', subtasks: [], dueDate: null, category: null },
+  { id: 2, text: '장보기', completed: true, priority: 'medium', subtasks: [], dueDate: null, category: null },
+  { id: 3, text: '운동하기', completed: false, priority: 'low', subtasks: [], dueDate: null, category: null },
 ]
 
 function useTodos() {
   const [todos, setTodos] = useLocalStorage('todos', defaultTodos)
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [categoryFilter, setCategoryFilter] = useState('all')
 
-  const onAdd = (text, priority = 'medium') => {
+  const filteredTodos = todos
+    .filter((t) => categoryFilter === 'all' ? true : t.category === categoryFilter)
+    .filter((t) => {
+      if (statusFilter === 'active') return !t.completed
+      if (statusFilter === 'completed') return t.completed
+      return true
+    })
+
+  const onAdd = (text, priority = 'medium', dueDate, category) => {
     const newTodo = {
       id: Date.now(),
       text,
       completed: false,
       priority,
       subtasks: [],
+      dueDate: dueDate ?? null,
+      category: category ?? null,
     }
     setTodos((prev) => [...prev, newTodo])
   }
@@ -28,8 +41,20 @@ function useTodos() {
     setTodos((prev) => prev.filter((t) => t.id !== id))
   }
 
-  const onEdit = (id, text, priority) => {
-    setTodos((prev) => prev.map((t) => (t.id === id ? { ...t, text, priority } : t)))
+  const onEdit = (id, text, priority, dueDate, category) => {
+    setTodos((prev) =>
+      prev.map((t) =>
+        t.id === id
+          ? { ...t, text, priority, dueDate: dueDate ?? t.dueDate, category: category ?? t.category }
+          : t
+      )
+    )
+  }
+
+  const onMoveCategory = (id, newCategory) => {
+    setTodos((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, category: newCategory } : t))
+    )
   }
 
   const onAddSubtask = (parentId, text) => {
@@ -66,7 +91,22 @@ function useTodos() {
     )
   }
 
-  return { todos, onAdd, onToggle, onDelete, onEdit, onAddSubtask, onToggleSubtask, onDeleteSubtask }
+  return {
+    todos,
+    filteredTodos,
+    statusFilter,
+    setStatusFilter,
+    categoryFilter,
+    setCategoryFilter,
+    onAdd,
+    onToggle,
+    onDelete,
+    onEdit,
+    onMoveCategory,
+    onAddSubtask,
+    onToggleSubtask,
+    onDeleteSubtask,
+  }
 }
 
 export default useTodos
