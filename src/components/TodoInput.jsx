@@ -23,24 +23,16 @@ function TodoInput({ onAdd }) {
   }
 
   return (
-    <div className="mb-6">
-      <div className="flex gap-2">
-        <input
-          type="text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="할일을 입력하세요"
-          className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button
-          onClick={handleSubmit}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          추가
-        </button>
-      </div>
-      <div className="flex gap-2 mt-2">
+    <div className="mb-6 grid grid-cols-[1fr_auto] gap-2">
+      <input
+        type="text"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder="할일을 입력하세요"
+        className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <div className="col-span-2 flex gap-2">
         {priorityOptions.map((opt) => (
           <button
             key={opt.value}
@@ -53,6 +45,12 @@ function TodoInput({ onAdd }) {
           </button>
         ))}
       </div>
+      <button
+        onClick={handleSubmit}
+        className="row-start-1 col-start-2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+      >
+        추가
+      </button>
     </div>
   )
 }
