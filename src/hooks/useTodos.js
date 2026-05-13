@@ -27,7 +27,11 @@ function useTodos() {
     setTodos((prev) => prev.filter((t) => t.id !== id))
   }
 
-  return { todos, onAdd, onToggle, onDelete }
+  const onEdit = (id, text, priority) => {
+    setTodos((prev) => prev.map((t) => (t.id === id ? { ...t, text, priority } : t)))
+  }
+
+  return { todos, onAdd, onToggle, onDelete, onEdit }
 }
 
 export default useTodos

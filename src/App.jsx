@@ -7,7 +7,7 @@ import Footer from './components/Footer'
 import useTodos from './hooks/useTodos'
 
 function App() {
-  const { todos, onAdd, onToggle, onDelete } = useTodos()
+  const { todos, onAdd, onToggle, onDelete, onEdit } = useTodos()
   const [filter, setFilter] = useState('전체')
 
   const filteredTodos = todos.filter((todo) => {
@@ -22,7 +22,7 @@ function App() {
       <main className="max-w-xl mx-auto px-4 py-8">
         <TodoInput onAdd={onAdd} />
         <TodoFilter current={filter} onChange={setFilter} />
-        <TodoList todos={filteredTodos} filter={filter} onToggle={onToggle} onDelete={onDelete} />
+        <TodoList todos={filteredTodos} filter={filter} onToggle={onToggle} onDelete={onDelete} onEdit={onEdit} />
         <Footer todos={todos} />
       </main>
     </div>
