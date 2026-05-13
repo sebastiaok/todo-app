@@ -9,12 +9,12 @@ const defaultTodos = [
 function useTodos() {
   const [todos, setTodos] = useLocalStorage('todos', defaultTodos)
 
-  const onAdd = (text) => {
+  const onAdd = (text, priority = 'medium') => {
     const newTodo = {
       id: Date.now(),
       text,
       completed: false,
-      priority: 'medium',
+      priority,
     }
     setTodos((prev) => [...prev, newTodo])
   }
