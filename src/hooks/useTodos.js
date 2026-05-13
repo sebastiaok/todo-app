@@ -12,12 +12,28 @@ function useTodos() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [categoryFilter, setCategoryFilter] = useState('all')
 
+  const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 }
+
   const filteredTodos = todos
     .filter((t) => categoryFilter === 'all' ? true : t.category === categoryFilter)
     .filter((t) => {
       if (statusFilter === 'active') return !t.completed
       if (statusFilter === 'completed') return t.completed
       return true
+    })
+    .sort((a, b) => {
+      // 1순위: 미완료 우선
+      if (a.completed !== b.completed) return a.completed ? 1 : -1
+
+      // 2순위: 우선순위 높은순 (high → medium → low)
+      const pd = PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]
+      if (pd !== 0) return pd
+
+      // 3순위: D-day 가까운순 (null은 항상 맨 뒤)
+      if (!a.dueDate && !b.dueDate) return 0
+      if (!a.dueDate) return 1
+      if (!b.dueDate) return -1
+      return a.dueDate.localeCompare(b.dueDate)
     })
 
   const onAdd = (text, priority = 'medium', dueDate, category) => {
