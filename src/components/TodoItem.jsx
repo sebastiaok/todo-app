@@ -6,10 +6,16 @@ const priorityOptions = [
   { value: 'low', label: '낮음', bg: 'bg-green-100', text: 'text-green-600', ring: 'ring-green-400' },
 ]
 
-function TodoItem({ todo, onToggle, onDelete, onEdit }) {
+function TodoItem({ todo, onToggle, onDelete, onEdit, onAddSubtask, onToggleSubtask, onDeleteSubtask }) {
   const [isEditing, setIsEditing] = useState(false)
   const [editText, setEditText] = useState('')
   const [editPriority, setEditPriority] = useState('')
+  const [showSubtasks, setShowSubtasks] = useState(false)
+  const [subtaskText, setSubtaskText] = useState('')
+
+  const subtasks = todo.subtasks || []
+  const hasSubtasks = subtasks.length > 0
+  const completedCount = subtasks.filter((s) => s.completed).length
 
   const startEdit = () => {
     setEditText(todo.text)
@@ -31,6 +37,17 @@ function TodoItem({ todo, onToggle, onDelete, onEdit }) {
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') saveEdit()
     if (e.key === 'Escape') cancelEdit()
+  }
+
+  const handleAddSubtask = () => {
+    const trimmed = subtaskText.trim()
+    if (!trimmed) return
+    onAddSubtask(todo.id, trimmed)
+    setSubtaskText('')
+  }
+
+  const handleSubtaskKeyDown = (e) => {
+    if (e.key === 'Enter') handleAddSubtask()
   }
 
   if (isEditing) {
@@ -78,44 +95,102 @@ function TodoItem({ todo, onToggle, onDelete, onEdit }) {
   }
 
   return (
-    <li className="flex items-center justify-between gap-2 p-3 bg-white rounded-lg shadow-sm border border-gray-100">
-      <div className="flex items-center gap-3 min-w-0">
-        <input
-          type="checkbox"
-          checked={todo.completed}
-          onChange={() => onToggle(todo.id)}
-          className="w-5 h-5 shrink-0 accent-blue-600"
-        />
-        <span className={`truncate ${todo.completed ? 'line-through text-gray-400' : 'text-gray-800'}`}>
-          {todo.text}
-        </span>
-        <span className={`hidden sm:inline text-xs px-2 py-0.5 rounded-full whitespace-nowrap ${
-          todo.completed ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'
-        }`}>
-          {todo.completed ? '완료' : '미완료'}
-        </span>
-        <span className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap ${
-          todo.priority === 'high' ? 'bg-red-100 text-red-600' :
-          todo.priority === 'medium' ? 'bg-yellow-100 text-yellow-600' :
-          'bg-green-100 text-green-600'
-        }`}>
-          {todo.priority}
-        </span>
+    <li className="flex flex-col gap-0 bg-white rounded-lg shadow-sm border border-gray-100">
+      <div className="flex items-center justify-between gap-2 p-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <input
+            type="checkbox"
+            checked={todo.completed}
+            onChange={() => onToggle(todo.id)}
+            disabled={hasSubtasks}
+            className="w-5 h-5 shrink-0 accent-blue-600 disabled:opacity-50"
+          />
+          <span className={`truncate ${todo.completed ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+            {todo.text}
+          </span>
+          {hasSubtasks && (
+            <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 whitespace-nowrap font-medium">
+              ({completedCount}/{subtasks.length})
+            </span>
+          )}
+          <span className={`hidden sm:inline text-xs px-2 py-0.5 rounded-full whitespace-nowrap ${
+            todo.completed ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'
+          }`}>
+            {todo.completed ? '완료' : '미완료'}
+          </span>
+          <span className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap ${
+            todo.priority === 'high' ? 'bg-red-100 text-red-600' :
+            todo.priority === 'medium' ? 'bg-yellow-100 text-yellow-600' :
+            'bg-green-100 text-green-600'
+          }`}>
+            {todo.priority}
+          </span>
+        </div>
+        <div className="flex gap-2 shrink-0">
+          <button
+            onClick={() => setShowSubtasks(!showSubtasks)}
+            className="text-purple-400 hover:text-purple-600 transition-colors text-sm"
+          >
+            쪼개기
+          </button>
+          <button
+            onClick={startEdit}
+            className="text-blue-400 hover:text-blue-600 transition-colors text-sm"
+          >
+            수정
+          </button>
+          <button
+            onClick={() => onDelete(todo.id)}
+            className="text-red-400 hover:text-red-600 transition-colors text-sm"
+          >
+            삭제
+          </button>
+        </div>
       </div>
-      <div className="flex gap-2 shrink-0">
-        <button
-          onClick={startEdit}
-          className="text-blue-400 hover:text-blue-600 transition-colors text-sm"
-        >
-          수정
-        </button>
-        <button
-          onClick={() => onDelete(todo.id)}
-          className="text-red-400 hover:text-red-600 transition-colors text-sm"
-        >
-          삭제
-        </button>
-      </div>
+
+      {showSubtasks && (
+        <div className="px-3 pb-3 pt-1 ml-8 border-t border-gray-50">
+          <div className="flex gap-2 mb-2">
+            <input
+              type="text"
+              value={subtaskText}
+              onChange={(e) => setSubtaskText(e.target.value)}
+              onKeyDown={handleSubtaskKeyDown}
+              placeholder="하위 할일 입력..."
+              className="flex-1 border border-gray-200 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400"
+            />
+            <button
+              onClick={handleAddSubtask}
+              className="text-sm px-2 py-1 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors"
+            >
+              추가
+            </button>
+          </div>
+          {hasSubtasks && (
+            <ul className="flex flex-col gap-1">
+              {subtasks.map((sub) => (
+                <li key={sub.id} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={sub.completed}
+                    onChange={() => onToggleSubtask(todo.id, sub.id)}
+                    className="w-4 h-4 accent-purple-500"
+                  />
+                  <span className={`flex-1 ${sub.completed ? 'line-through text-gray-400' : 'text-gray-700'}`}>
+                    {sub.text}
+                  </span>
+                  <button
+                    onClick={() => onDeleteSubtask(todo.id, sub.id)}
+                    className="text-gray-300 hover:text-red-500 transition-colors text-xs"
+                  >
+                    X
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
     </li>
   )
 }

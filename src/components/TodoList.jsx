@@ -6,7 +6,7 @@ const emptyMessages = {
   '완료': '완료된 할일이 없습니다.',
 }
 
-function TodoList({ todos, filter, onToggle, onDelete, onEdit }) {
+function TodoList({ todos, filter, onToggle, onDelete, onEdit, onAddSubtask, onToggleSubtask, onDeleteSubtask }) {
   if (todos.length === 0) {
     return (
       <p className="text-gray-400 text-center py-8">
@@ -18,7 +18,7 @@ function TodoList({ todos, filter, onToggle, onDelete, onEdit }) {
   return (
     <ul className="flex flex-col gap-2 mb-4">
       {todos.map((todo) => (
-        <TodoItem key={todo.id} todo={todo} onToggle={onToggle} onDelete={onDelete} onEdit={onEdit} />
+        <TodoItem key={todo.id} todo={todo} onToggle={onToggle} onDelete={onDelete} onEdit={onEdit} onAddSubtask={onAddSubtask} onToggleSubtask={onToggleSubtask} onDeleteSubtask={onDeleteSubtask} />
       ))}
     </ul>
   )
