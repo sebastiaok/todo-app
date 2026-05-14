@@ -43,6 +43,7 @@ function TodoItem({ todo, onToggle, onDelete, onEdit, onMoveCategory, onAddSubta
   }
 
   const handleKeyDown = (e) => {
+    if (e.nativeEvent.isComposing) return
     if (e.key === 'Enter') saveEdit()
     if (e.key === 'Escape') cancelEdit()
   }
@@ -55,6 +56,7 @@ function TodoItem({ todo, onToggle, onDelete, onEdit, onMoveCategory, onAddSubta
   }
 
   const handleSubtaskKeyDown = (e) => {
+    if (e.nativeEvent.isComposing) return
     if (e.key === 'Enter') handleAddSubtask()
   }
 
